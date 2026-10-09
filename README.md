@@ -1,123 +1,25 @@
-# AgriMitra
+PROMPT USED:
 
-AgriMitra is a React + Vite and FastAPI agriculture assistant for Indian farmers. It uses the official Groq Python SDK for text and vision requests, SQLite for conversation persistence, and keeps all credentials on the backend.
+  Build a full-stack agriculture chatbot called AgriMitra for Indian farmers using React, Vite, Tailwind CSS, FastAPI,     Python, SQLite, and the Groq API.
+  
+  I want the application to have a clean, modern design with a green and cream color theme. Include a home page, AI chat, plant disease detection, crop recommendations, weather information, government schemes, and an about page. The interface should be responsive and work properly on both desktop and mobile.
+  
+  The chat should support English, Hindi, and Telugu. Users should be able to ask farming-related questions, receive useful answers, start new conversations, view recent chats, reopen previous conversations, and clear the current conversation. Store conversation history in SQLite.
+  
+  For plant disease detection, allow users to upload crop or leaf images and analyze them using a suitable vision-capable AI model. For crop recommendations, collect the farmer's state, district, season, soil type, water availability, and optional soil test results before generating recommendations. The weather page should use a real weather API when configured, and the government schemes page should provide official links with reliable information.
+  
+  Please clearly define all the required API endpoints, including what each endpoint does, the request parameters or body, the response format, and possible error responses. Make sure the frontend and backend communicate correctly and handle loading states, validation, and API failures.
+  
+  Also, clearly define the responsibilities of each AI model. Specify which model handles normal conversations, crop recommendations, and plant disease image analysis. Use models that support the required tasks, keep model names configurable, and handle API errors and rate limits properly. Do not use a text-only model for image analysis.
+  
+  Define the authentication and user identity requirements as well. Decide whether the application should work without registration or require user accounts. If authentication is not necessary for the initial version, use a suitable session or conversation identifier to manage chat history. Make sure users cannot access other users' private conversations and explain how the approach can be extended to support authentication in the future.
+  
+  For the UI, keep the navbar fixed at the top and the sidebar fixed on the left. The sidebar and main content should scroll independently. On mobile, provide a working hamburger menu and make sure the layout does not overflow the screen. Use consistent spacing, readable typography, appropriate icons, loading indicators, error messages, and helpful empty states.
+  
+  Keep the project organized into separate frontend and backend folders. Use environment variables for configuration and keep the Groq API key strictly on the backend. Include a `.env.example` containing placeholders only, and make sure `.env`, virtual environments, `node_modules`, local databases, and generated build files are excluded from Git.
+  
+  Prepare the project for deployment using GitHub, Vercel for the frontend, and Render for the backend. Configure the frontend API URL through `VITE_API_URL`, configure backend secrets through deployment environment variables, and ensure the production application does not depend on localhost URLs. Include a README with installation, configuration, API documentation, testing, and deployment instructions.
 
-## Features
+Before completing the project, test all pages and API endpoints, verify conversation creation and retrieval, test image upload validation, check the responsive layout, and fix any errors. Do not leave essential features as placeholders or return fake data when a real API integration is required. If a feature needs an external API key, clearly explain how to configure it and provide an appropriate fallback when it is unavailable.
 
-- Chat in English, Hindi, or Telugu with conversation context
-- Agriculture guidance for crops, irrigation, soil, pests, harvesting, and disease questions
-- Plant image analysis using Groq's documented vision model `qwen/qwen3.8-27b`
-- Crop recommendation form with transparent limitations
-- Optional live weather through OpenWeatherMap; no live weather is invented when unconfigured
-- Official-source links for selected Indian schemes
-- SQLite conversation history, clear/new chat controls, validation, loading, and error states
-- Responsive agriculture-themed React UI with Tailwind CSS and Lucide icons
-
-## Current Groq integration
-
-The backend uses `Groq().chat.completions.create(...)`, the official SDK method documented by Groq. The default text model is `openai/gpt-oss-120b`. The default vision model is `qwen/qwen3.8-27b`, which is configured separately because ordinary text models should not be assumed to accept images. Confirm model access in your Groq account before deployment; model availability can change.
-
-## Setup on macOS/Linux
-
-```bash
-git clone <your-repository-url> agrimitra
-cd agrimitra
-cp .env.example .env
-# Edit .env and add a newly created GROQ_API_KEY.
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r backend/requirements.txt
-cd frontend
-npm install
-cd ..
-```
-
-Start the backend:
-
-```bash
-uvicorn backend.main:app --reload --port 8000
-```
-
-In another terminal, start the frontend:
-
-```bash
-cd frontend
-npm run dev
-```
-
-Open http://localhost:5173.
-
-## Windows PowerShell
-
-```powershell
-git clone <your-repository-url> agrimitra
-cd agrimitra
-Copy-Item .env.example .env
-py -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r backend\requirements.txt
-cd frontend
-npm install
-cd ..
-uvicorn backend.main:app --reload --port 8000
-```
-
-Open a second PowerShell window:
-
-```powershell
-cd path\to\agrimitra\frontend
-npm run dev
-```
-
-## Environment variables
-
-Create a Groq key at https://console.groq.com/keys and place it only in the root/backend environment. Never put it in `frontend/.env`, React source, browser storage, logs, or GitHub.
-
-```env
-GROQ_API_KEY=your-new-key
-GROQ_TEXT_MODEL=openai/gpt-oss-120b
-GROQ_VISION_MODEL=qwen/qwen3.8-27b
-WEATHER_API_KEY=
-DATABASE_URL=sqlite:///./agrimitra.db
-FRONTEND_ORIGIN=http://localhost:5173
-```
-
-The API key previously pasted into chat should be revoked and replaced. Do not use it for deployment.
-
-## Tests
-
-```bash
-pytest -q backend/tests
-npm run build --prefix frontend
-```
-
-Backend tests mock Groq and verify context, model selection, image content formatting, missing configuration, empty responses, and safe error handling. A live Groq request is not run unless a valid key is configured in the environment.
-
-## API endpoints
-
-- `GET /health`
-- `POST /api/chat`
-- `GET /api/conversations`
-- `GET /api/conversations/{id}`
-- `DELETE /api/conversations/{id}`
-- `POST /api/disease`
-- `POST /api/crop-recommendations`
-- `POST /api/weather`
-- `GET /api/schemes`
-
-## Deployment
-
-Deploy the FastAPI service and frontend separately. Set `GROQ_API_KEY`, model variables, `DATABASE_URL`, and `FRONTEND_ORIGIN` through the host's secret manager. Build the frontend with `npm run build`; serve `frontend/dist` with a static host. Run the API with `uvicorn backend.main:app --host 0.0.0.0 --port $PORT`.
-
-For production, use managed persistent storage instead of local SQLite if multiple backend instances are required. Restrict CORS to the exact deployed frontend origin, add authentication before exposing private conversation history, and keep request/file limits enabled.
-
-## Safety and limitations
-
-AI output is general guidance, not a professional diagnosis or guarantee of yield. Image analysis reports visual possibilities and uncertainty. Do not use it as a substitute for a qualified agricultural officer. Verify scheme eligibility and deadlines on the linked official portals. Weather is only reported when the configured provider returns actual data.
-
-## Sources
-
-- Groq quickstart: https://console.groq.com/docs/quickstart
-- Groq text generation: https://console.groq.com/docs/text-chat
-- Groq supported models: https://console.groq.com/docs/models
-- Groq vision: https://console.groq.com/docs/vision
+Keep the implementation straightforward, secure, maintainable, and suitable for a student project that can be demonstrated as a working application.
